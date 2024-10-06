@@ -1,0 +1,26 @@
+name: Death_Match
+version: 1.0.0
+main: de.salty.DeathMatch
+api-version: '1.21'
+author: Salty
+commands:
+  startgame:
+    description: Starts the death match game.
+    usage: /startgame
+    permission: deathmatch.startgame
+    permission-message: You do not have permission to start the game.
+
+  selectteam:
+    description: Opens the team selection menu.
+    usage: /selectteam
+    permission: deathmatch.selectteam
+    permission-message: You do not have permission to select a team.
+
+permissions:
+  deathmatch.startgame:
+    description: Allows the player to start the game.
+    default: op
+
+  deathmatch.selectteam:
+    description: Allows the player to select a team.
+    default: true
