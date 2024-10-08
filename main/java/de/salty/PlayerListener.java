@@ -41,22 +41,30 @@ public class PlayerListener implements Listener {
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {
         Player victim = event.getEntity();
-        if (gameManager.isGameRunning()) {
+
+        if (gameManager.isGameRunning() && gameManager.getTeam(victim) != null) {
             victim.setGameMode(GameMode.SPECTATOR);
+
+            Team victimTeam = gameManager.getTeam(victim);
 
             if (victim.getKiller() != null) {
                 Player killer = victim.getKiller();
                 Team killerTeam = gameManager.getTeam(killer);
 
-                if (killerTeam != null) {
+                if (killerTeam != null && gameManager.getTeam(killer) != null) {
                     gameManager.incrementTeamKills(killerTeam);
                     Bukkit.getLogger().info(killer.getName() + " from " + killerTeam.name() + " Team made a kill!");
                 }
+            } else {
+                Team oppositeTeam = (victimTeam == Team.RED) ? Team.BLUE : Team.RED;
+                gameManager.incrementTeamKills(oppositeTeam);
+                Bukkit.getLogger().info("Player " + victim.getName() + " died from non-player cause, crediting kill to " + oppositeTeam.name() + " Team.");
             }
 
             gameManager.checkForGameEnd();
         }
     }
+
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
