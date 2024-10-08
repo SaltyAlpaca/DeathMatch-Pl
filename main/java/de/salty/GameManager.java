@@ -75,7 +75,6 @@ public class GameManager {
         if (!gameRunning) return;
         gameRunning = false;
 
-        // Determine the winner
         Team winningTeam = determineWinningTeam();
         if (winningTeam != null) {
             String winMessage = "§a§l" + winningTeam.name() + " Team wins!";
@@ -192,13 +191,12 @@ public class GameManager {
             if (player != null) {
                 Location targetLocation = (playerTeams.get(playerId) == Team.RED) ? redTeamLocation : blueTeamLocation;
 
-                // Attempt to find a safe location
                 Location safeLocation = findSafeLocation(targetLocation);
                 if (safeLocation != null) {
                     player.teleport(safeLocation);
                     Bukkit.getLogger().info("Player " + player.getName() + " teleported to a safe location.");
                 } else {
-                    player.teleport(targetLocation); // Teleport anyway if no safe spot found
+                    player.teleport(targetLocation);
                     Bukkit.getLogger().warning("Couldn't find a safe location, teleporting " + player.getName() + " to default.");
                 }
             }
@@ -318,4 +316,6 @@ public class GameManager {
                 material == Material.FERN ||
                 material == Material.SEAGRASS;
     }
+
+
 }
