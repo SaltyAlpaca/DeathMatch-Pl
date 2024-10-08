@@ -190,15 +190,22 @@ public class GameManager {
         for (UUID playerId : playerTeams.keySet()) {
             Player player = Bukkit.getPlayer(playerId);
             if (player != null) {
-                if (playerTeams.get(playerId) == Team.RED) {
-                    player.teleport(redTeamLocation);
-                } else if (playerTeams.get(playerId) == Team.BLUE) {
-                    player.teleport(blueTeamLocation);
+                Location targetLocation = (playerTeams.get(playerId) == Team.RED) ? redTeamLocation : blueTeamLocation;
+
+                // Attempt to find a safe location
+                Location safeLocation = findSafeLocation(targetLocation);
+                if (safeLocation != null) {
+                    player.teleport(safeLocation);
+                    Bukkit.getLogger().info("Player " + player.getName() + " teleported to a safe location.");
+                } else {
+                    player.teleport(targetLocation); // Teleport anyway if no safe spot found
+                    Bukkit.getLogger().warning("Couldn't find a safe location, teleporting " + player.getName() + " to default.");
                 }
             }
         }
         Bukkit.getLogger().info("Players teleported to arena.");
     }
+
 
     public boolean isGameRunning() {
         return gameRunning;
@@ -264,5 +271,51 @@ public class GameManager {
         } else {
             return null;
         }
+    }
+    private boolean isSafeLocation(Location location) {
+        World world = location.getWorld();
+        if (world == null) return false;
+
+        Location feet = location.clone();
+        Location head = feet.clone().add(0, 1, 0);
+        Location ground = feet.clone().add(0, -1, 0);
+
+        Material feetMaterial = world.getBlockAt(feet).getType();
+        Material headMaterial = world.getBlockAt(head).getType();
+        Material groundMaterial = world.getBlockAt(ground).getType();
+
+        return groundMaterial.isSolid() &&
+                isNonSolidBlock(feetMaterial) &&
+                isNonSolidBlock(headMaterial);
+    }
+    private Location findSafeLocation(Location location) {
+        World world = location.getWorld();
+        if (world == null) return null;
+
+        for (int y = 0; y < 10; y++) {
+            Location checkLocation = location.clone().add(0, y, 0);
+            if (isSafeLocation(checkLocation)) {
+                return checkLocation;
+            }
+        }
+
+        for (int y = 0; y > -10; y--) {
+            Location checkLocation = location.clone().add(0, y, 0);
+            if (isSafeLocation(checkLocation)) {
+                return checkLocation;
+            }
+        }
+
+        return null;
+    }
+
+    private boolean isNonSolidBlock(Material material) {
+        return material == Material.AIR ||
+                material == Material.LADDER ||
+                material == Material.VINE ||
+                material == Material.SNOW ||
+                material == Material.TALL_GRASS ||
+                material == Material.FERN ||
+                material == Material.SEAGRASS;
     }
 }
